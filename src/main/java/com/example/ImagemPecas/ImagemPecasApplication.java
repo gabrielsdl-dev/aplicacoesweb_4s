@@ -9,7 +9,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class ImagemPecasApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ImagemPecasApplication.class, args);
+
+        SpringApplication.run(ImagemPecasApplication.class, args);
 	}
 
 }
