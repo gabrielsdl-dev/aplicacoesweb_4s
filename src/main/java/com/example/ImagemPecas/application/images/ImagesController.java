@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+//teste
 @RestController
 @RequestMapping("/v1/images")
 @Slf4j
