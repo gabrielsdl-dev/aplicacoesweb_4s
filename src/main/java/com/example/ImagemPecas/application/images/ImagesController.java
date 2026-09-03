@@ -40,9 +40,8 @@ public class ImagesController {
                 .extension(ImageExtension.valueof(MediaType.valueOf(file.getContentType())))
                 .file(file.getBytes())
                 .build();
-        // log.info("Nome definido para a imagem: {}", name);
-        // log.info("Tags: {}", tags);
-        //log.info("Content type: {}", file.getContentType());
+        service.save(image);
+
         return ResponseEntity.ok().build();
     }
 }
