@@ -1,5 +1,6 @@
 package com.example.ImagemPecas.domain.enums;
 
+import lombok.Getter;
 import org.springframework.http.MediaType;
 
 import java.util.Arrays;
@@ -10,6 +11,7 @@ public enum ImageExtension {
     GIF(MediaType.IMAGE_GIF);
 
 
+    @Getter
     private final MediaType mediaType;
 
     ImageExtension(MediaType mediaType){
