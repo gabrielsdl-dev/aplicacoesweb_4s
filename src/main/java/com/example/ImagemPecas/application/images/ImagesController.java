@@ -7,15 +7,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
+
 //testeee
 @RestController
 @RequestMapping("/v1/images")
@@ -61,7 +61,21 @@ public class ImagesController {
 
     private URI buildImageURL(Image image){
         String imagePath = "/" + image.getId();
-        return ServletUriComponentsBuilder.fromCurrentRequest().path(imagePath).build().toUri();
+        //return ServletUriComponentsBuilder.fromCurrentRequest().path(imagePath).build().toUri();
+        return ServletUriComponentsBuilder.fromCurrentRequestUri().path(imagePath).build().toUri();
+    }
 
+    //localhost:8080/v1/images?extesion=PNG&query=Nature
+    @GetMapping
+    public ResponseEntity<List<ImageDTO>> search(
+            @RequestParam(value = "extension", required = false, defaultValue = "") String extension,
+            @RequestParam(value = "query", required = false) String query){
+
+        var result = service.search(ImageExtension.ofName(extension), query);
+        var images = result.stream().map(image ->{
+            var url = buildImageURL(image);
+            return mapper.imageToDTO(image,url.toString());
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(images);
     }
 }
