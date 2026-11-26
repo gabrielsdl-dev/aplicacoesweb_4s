@@ -16,19 +16,32 @@ public class ImageMapper {
             .name(name)
             .tags(String.join(",", tags))
             .size(file.getSize())
-            .extension(ImageExtension.valueof(MediaType.valueOf(file.getContentType())))
+            .extension(extensionOf(file))
             .file(file.getBytes())
             .build();
 
     }
 
+    /** Retorna a extensão suportada do arquivo, ou null se o formato não for aceito. */
+    public ImageExtension extensionOf(MultipartFile file) {
+        String contentType = file.getContentType();
+        if (contentType == null || contentType.isBlank()) {
+            return null;
+        }
+        try {
+            return ImageExtension.valueof(MediaType.valueOf(contentType));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     public ImageDTO imageToDTO(Image image, String url){
         return ImageDTO.builder()
                 .url(url)
-                .extension(image.getExtension().name())
+                .extension(image.getExtension() != null ? image.getExtension().name() : null)
                 .name(image.getName())
                 .size(image.getSize())
-                .uploadDate(image.getUploadDate().toLocalDate())
+                .uploadDate(image.getUploadDate() != null ? image.getUploadDate().toLocalDate() : null)
                 .build();
     }
 

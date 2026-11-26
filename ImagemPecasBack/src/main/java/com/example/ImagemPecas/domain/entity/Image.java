@@ -35,14 +35,14 @@ public class Image {
     private LocalDateTime uploadDate;
     @Column
     private String tags;
-    @Column
-    @Lob
+    // bytea no Postgres (o @Lob virava "oid" e quebrava a leitura fora de transação)
+    @Column(columnDefinition = "bytea")
     private byte[] file;
 
 
 
     public String getFileName(){
-        return getName().concat("").concat(getExtension().name());
+        return getName().concat(".").concat(getExtension().name().toLowerCase());
     }
 
 }

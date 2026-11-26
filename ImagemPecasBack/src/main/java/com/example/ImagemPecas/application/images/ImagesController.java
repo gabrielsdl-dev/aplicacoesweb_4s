@@ -5,6 +5,7 @@ import com.example.ImagemPecas.domain.enums.ImageExtension;
 import com.example.ImagemPecas.domain.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//testeee
 @RestController
 @RequestMapping("/v1/images")
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RequiredArgsConstructor
 public class ImagesController {
@@ -27,13 +28,20 @@ public class ImagesController {
     private final ImageMapper mapper;
 
     @PostMapping
-    public ResponseEntity save(
+    public ResponseEntity<?> save(
             @RequestParam("file")MultipartFile file,
             @RequestParam("name") String name,
             @RequestParam("tags") List<String> tags
             ) throws IOException
     {
         log.info("Imagem recebida: name: {}, size: {}", file.getOriginalFilename(), file.getSize());
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Arquivo vazio.");
+        }
+        if (mapper.extensionOf(file) == null) {
+            return ResponseEntity.badRequest().body("Formato não suportado. Use PNG, JPEG ou GIF.");
+        }
 
         Image image = mapper.mapToImage(file, name, tags);
         Image savedImage = service.save(image);
@@ -54,18 +62,17 @@ public class ImagesController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(image.getExtension().getMediaType());
         headers.setContentLength(image.getSize());
-        headers.setContentDispositionFormData("inline; filename =\"" + image.getName()
-                +"\"",image.getName());
+        headers.setContentDisposition(
+                ContentDisposition.inline().filename(image.getFileName()).build());
         return new ResponseEntity<>(image.getFile(), headers, HttpStatus.OK);
     }
 
     private URI buildImageURL(Image image){
         String imagePath = "/" + image.getId();
-        //return ServletUriComponentsBuilder.fromCurrentRequest().path(imagePath).build().toUri();
         return ServletUriComponentsBuilder.fromCurrentRequestUri().path(imagePath).build().toUri();
     }
 
-    //localhost:8080/v1/images?extesion=PNG&query=Nature
+    //localhost:8080/v1/images?extension=PNG&query=Nature
     @GetMapping
     public ResponseEntity<List<ImageDTO>> search(
             @RequestParam(value = "extension", required = false, defaultValue = "") String extension,
